@@ -2,6 +2,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -9,14 +13,15 @@ import java.util.*;
  */
 public class BestScores extends Frame {
 
-    public BestScores() {
+    public BestScores()
+    {
         this.width = width *3/4;
         this.height = height * 3 / 4;
     }
 
-    public void createABestScoresFrame(JFrame BestScoresFrame, JFrame mainMenuFrame){
+    public void createABestScoresFrame(JFrame BestScoresFrame, JFrame mainMenuFrame)
+    {
 
-        String chuj = "Cipka";
         JButton backToMenuButton = createAButton(width, height, 1, "Back");
         backToMenuButton.setBounds(buttonWidth/8, height - 2*buttonHeight+30, buttonWidth/2, buttonHeight/2);
         backToMenuButton.setVisible(true);
@@ -62,15 +67,20 @@ public class BestScores extends Frame {
             tanksScores1[i].setBorder(BorderFactory.createLoweredBevelBorder());
             tanksScores2[i].setBorder(BorderFactory.createLoweredBevelBorder());
             tanksScores3[i].setBorder(BorderFactory.createLoweredBevelBorder());
-            tanksScores1[i].setVisible(true);
-            tanksScores2[i].setVisible(true);
-            tanksScores3[i].setVisible(true);
+
+
+
             BestScoresFrame.add(tanksScores1[i]);
             BestScoresFrame.add(tanksScores2[i]);
             BestScoresFrame.add(tanksScores3[i]);
 
+
+            tanksScores1[i].setVisible(true);
+            tanksScores2[i].setVisible(true);
+            tanksScores3[i].setVisible(true);
+
         }
-        tanksScores1[1].setText(chuj);
+        readBestScores(tanksScores1,tanksScores2,tanksScores3);
 
         backToMenuButton.addActionListener(new ActionListener(){
             @Override
@@ -79,49 +89,48 @@ public class BestScores extends Frame {
                 mainMenuFrame.setVisible(true);
             }
         });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /*
-        oneTankScores.setBounds(width/25,height/12,7*width/25,3*height/5);
-        twoTanksScores.setBounds(9*width/25, height/12 ,7*width/25,3*height/5);
-        threeTanksScores.setBounds(17*width/25, height/12 ,7*width/25,3*height/5);
-        oneTankScores.setBackground(Color.RED);
-        twoTanksScores.setBackground(Color.YELLOW);
-        threeTanksScores.setBackground(Color.GREEN);
-        oneTankScores.setVisible(true);
-        twoTanksScores.setVisible(true);
-        threeTanksScores.setVisible(true);
-        oneTankScores.setEditable(true);
-        twoTanksScores.setEditable(false);
-        threeTanksScores.setEditable(false);
-        BestScoresFrame.add(oneTankScores);
-        BestScoresFrame.add(twoTanksScores);
-        BestScoresFrame.add(threeTanksScores);
-*/
-
     }
 
+        public static void readBestScores(JTextField[] v1,JTextField[] v2,JTextField[] v3)
+        {
+            String[] places1 = {"firstplace1", "secondplace1", "thirdplace1", "fourthplace1" , "fifthplace1",
+                    "sixthplace1", "seventhplace1", "eighthplace1", "ninethplace1", "tenthplace1"};
+            String[] places2 = {"firstplace2", "secondplace2", "thirdplace2", "fourthplace2" , "fifthplace2",
+                    "sixthplace2", "seventhplace2", "eighthplace2", "ninethplace2", "tenthplace2"};
+            String[] places3 = {"firstplace3", "secondplace3", "thirdplace3", "fourthplace3" , "fifthplace3",
+                    "sixthplace3", "seventhplace3", "eighthplace3", "ninethplace3", "tenthplace3"};
+
+            String[][] containers = new String[3][10];
+            try {
+                File cfgfile = new File("bestScores.properties");
+                FileInputStream fis = new FileInputStream(cfgfile);
+                Properties prop = new Properties();
+                prop.load(fis);
+                            for (int b = 0; b < 10; b++)
+                            {
+                                containers[0][b] = prop.getProperty(places1[b]);
+                                containers[1][b] = prop.getProperty(places2[b]);
+                                containers[2][b] = prop.getProperty(places3[b]);
+                                v1[b + 1].setText(containers[0][b]);
+                                v1[b + 1].setHorizontalAlignment(JTextField.CENTER);
+                                v2[b + 1].setText(containers[1][b]);
+                                v2[b + 1].setHorizontalAlignment(JTextField.CENTER);
+                                v3[b + 1].setText(containers[2][b]);
+                                v3[b + 1].setHorizontalAlignment(JTextField.CENTER);
+                            }
+                            fis.close();
+                        }
+            catch(FileNotFoundException e)
+            {
+                System.err.println("FNFException!");
+                e.printStackTrace();
+            }
+            catch (IOException f)
+            {
+                System.err.println("IOException!");
+                f.printStackTrace();
+            }
+        }
 
 
 
