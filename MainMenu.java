@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -49,11 +50,33 @@ public class MainMenu extends Frame {
      */
     public void createFrameButtons(JFrame frame) {
 
+        Font jc = new Font("Serif", Font.BOLD, 30);
+
+        /*
+        JPanel menuPan = new JPanel();
+        Rectangle ram = frame.getBounds();
+        menuPan.setBounds(ram);
+        menuPan.setBackground(new Color(24,240,132));
+        */
+
+
         JFrame newGameFrame;
         JFrame rulesFrame;
         JFrame authorsFrame;
         JFrame bestScoresFrame;
         JFrame exitFrame;
+
+
+        JTextField title = new JTextField();
+        title.setFont(jc);
+        title.setText("Micro Tanks");
+        title.setEditable(false);
+        title.setHorizontalAlignment(JTextField.CENTER);
+        title.setBounds(250,0,200,50);
+        title.setBorder(BorderFactory.createLineBorder(Color.RED));
+        title.setVisible(true);
+
+
 
         JButton newGameButton = createAButton(width, height, 0, "New Game");
         JButton rulesButton = createAButton(width, height, 1, "Rules");
@@ -61,18 +84,39 @@ public class MainMenu extends Frame {
         JButton bestScoresButton = createAButton(width,height, 3, "Best Scores");
         JButton exitButton = createAButton(width,height, 4, "EXIT");
 
+        newGameButton.setBorder(BorderFactory.createRaisedBevelBorder());
+        rulesButton.setBorder(BorderFactory.createRaisedBevelBorder());
+        authorButton.setBorder(BorderFactory.createRaisedBevelBorder());
+        bestScoresButton.setBorder(BorderFactory.createRaisedBevelBorder());
+        exitButton.setBorder(BorderFactory.createRaisedBevelBorder());
+
         newGameFrame = newGame.createAFrame(newGame.getWidth(), newGame.getHeight(), "New Game");
         rulesFrame = rules.createAFrame(rules.getWidth(), rules.getHeight(), "Rules");
         authorsFrame = authors.createAFrame(authors.getWidth(), authors.getHeight(), "Authors");
         bestScoresFrame = bestScores.createAFrame(bestScores.getWidth(), bestScores.getHeight(), "Best Scores");
         exitFrame = exit.createAFrame(exit.getWidth(), exit.getHeight(), "Exit");
 
+        frame.setResizable(false);
+
+        frame.add(title);
         frame.add(newGameButton);
         frame.add(rulesButton);
         frame.add(authorButton);
         frame.add(bestScoresButton);
         frame.add(exitButton);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        /*
+        menuPan.add(title);
+        menuPan.add(newGameButton);
+        menuPan.add(rulesButton);
+        menuPan.add(authorButton);
+        menuPan.add(bestScoresButton);
+        menuPan.add(exitButton);
+        menuPan.setVisible(true);
+        frame.add(menuPan);
+        */
+
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         newGameButton.addActionListener(new ActionListener(){
             @Override
