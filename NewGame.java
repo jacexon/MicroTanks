@@ -2,27 +2,57 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
- * Created by Bartłomiej and Jacek on 2016-03-26.
+ * Klasa <code>NewGame</code> odpowiedzialna jest za stworzenie ramki
+ * opcji nowej gry. Klasa dziedziczy po klasie abstrakcyjnej
+ * <code>Frame</code>.
+ *
+ * @author      Bartłomiej Bielecki <address @ example.com>
+ * @author      Jacek Polak <polakjacek@gmail.com>
+ * @version     1.1
+ * @since       2016-03-26
  */
 
 
 public class NewGame extends Frame {
 
-    Font janusz = new Font("Serif", Font.BOLD, 20);
+    private Font janusz = new Font("Serif", Font.BOLD, 20);
+    private GameFrame gameFrame = new GameFrame();
 
+    /**
+     *  Konstruktor klasy <code>NewGame</code> inicjalizuje  ramki w zależności od
+     * rozmiaru ekranu urządzenia wykonującego
+     * program.
+     */
     public NewGame() {
         this.width=width/2;
         this.height=height*3/4;
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) {
+                dispose();
+            }
+        });
     }
 
+    /**
+     * Metoda służąca do utworzenia ramki nowej gry, są w niej wszystkie opcje potrzebne do
+     * uruchomienia rozgrywki, a także przyciski powrotu do menu głównego.
+     *
+     * @param newGameFrame Ramka, która zostanie przekazana z MainMenu
+     * @param mainMenuFrame Ramka menu głównego, do której powrócimy klikając przycisk
+     *
+     * @return Brak
+     */
     public void createNewGameFrame(JFrame newGameFrame, JFrame mainMenuFrame){
 
         int buttonHeight = height/8;
         int buttonWidth = width/4;
         JButton startGameButton = createAButton(width, height, 5, "START GAME");
         JButton pauseButton = createAButton(width, height, 5, "EXIT");
+        JFrame gFrame = gameFrame.createAFrame(gameFrame.getWidth(), gameFrame.getHeight(), "Micro Tanks");
 
         newGameFrame.setResizable(false);
         JTextField p1 = new JTextField("Podaj prosze imie gracza 1");
@@ -74,6 +104,7 @@ public class NewGame extends Frame {
         jaco.setBounds(width / 6 , height / 9 +(3*buttonHeight+3*2),buttonWidth/2,buttonHeight/2);
         jaco.setVisible(true);
         newGameFrame.add(jaco);
+
         Choice jaco2 = new Choice();
         jaco2.add("Czerwony");
         jaco2.add("Niebieski");
@@ -116,6 +147,15 @@ public class NewGame extends Frame {
                 newGameFrame.setVisible(false);
                 mainMenuFrame.setVisible(true);
 
+            }
+        });
+
+        startGameButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                newGameFrame.setVisible(false);
+                gameFrame.createGameFrame(gFrame,mainMenuFrame);
+                gFrame.setVisible(true);
             }
         });
     }
