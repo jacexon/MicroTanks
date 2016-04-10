@@ -1,28 +1,59 @@
 import javax.swing.*;
 import java.awt.*;
 import javax.imageio.ImageIO;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.net.*;
 
 /**
- * Created by Bartłomiej and Jacek on 2016-03-26.
+ * Klasa <code>Exit</code> odpowiada za obsługę wyjścia z programu,
+ * dziedziczy ona po klasie abstrakcyjnej <code>Frame</code>
+ *
+ * @author      Bartłomiej Bielecki <address @ example.com>
+ * @author      Jacek Polak <polakjacek@gmail.com>
+ * @version     1.1
+ * @since       2016-03-26
  */
+
 public class Exit extends Frame
 {
 
-    BufferedImage image;
+    Image image;
+
+    /**
+     * Konstruktor klasy <code>Exit</code> inicjalizuje  ramki w zależności od
+     * rozmiaru ekranu urządzenia wykonującego
+     * program.
+     */
     public Exit()
     {
         this.width=width/2;
         this.height=height*3/4;
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) {
+                dispose();
+            }
+        });
     }
+
+    /**
+     * Metoda służąca do tworzenia ramki wyjścia z programu, zawiera obsługę zdarzeniową
+     * przycisków, a także pobranie obrazka z internetu
+     * @param exitFrame Ramka <code>Exit</code>, na której pojawiają się komponenty
+     *                  graficzne m.in. służące do wyjścia z programu lub w nim pozostania
+     *
+     * @exception IOException
+     * @return Brak
+     */
     public void createAnExitFrame (JFrame exitFrame)
     {
         JButton exitProgramButton = createAButton(width, height, 1, "YES");
-        JButton dontExitButton = createAButton(width, height, 1, "NOOOOO");
-        JTextField exitQuestion = new JTextField("Do you want to quit the game, bitch?");
+        JButton dontExitButton = createAButton(width, height, 1, "NO");
+        JTextField exitQuestion = new JTextField("Do you want to quit the game?",JTextField.CENTER);
 
         exitProgramButton.setBounds(buttonWidth/8, height - 2*buttonHeight+30, buttonWidth/2, buttonHeight/2);
         exitProgramButton.setVisible(true);
@@ -42,13 +73,14 @@ public class Exit extends Frame
         try {
             URL url = new URL("http://betanews.com/wp-content/uploads/2012/03/close-button-300x300.jpg");
             image = ImageIO.read(url);
-
+            image = image.getScaledInstance(width/4,height/5,150);
         }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
         ImageIcon im = new ImageIcon(image);
+
         JLabel imageLabel = new JLabel(im);
         imageLabel.setVisible(true);
         imageLabel.setBounds(width/2-150,10,300,310);
