@@ -55,6 +55,7 @@ public class NewGame extends Frame {
         JFrame gFrame = gameFrame.createAFrame(gameFrame.getWidth(), gameFrame.getHeight(), "Micro Tanks");
 
         newGameFrame.setResizable(false);
+        newGameFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         JTextField p1 = new JTextField("Podaj prosze imie gracza 1");
         JTextField p2 = new JTextField("Podaj prosze imie gracza 2");
         p1.setEditable(false);
