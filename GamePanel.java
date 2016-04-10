@@ -41,13 +41,19 @@ public class GamePanel extends JPanel {
 
         super.paintComponent(g);
         double x,x2,y,y2;
+        int[] formax = new int[2];
+        loadMap(formax);
 
         for(int i=0;i<100;i++)
         {
             x=((double)getWidth()/100)*i;
             x2=((double)getWidth()/100)*(i+1);
-            y=200+((Math.sin(i/10))*100);
-            y2=200+((Math.sin((i+1)/10)*100));
+            y =  200 + formax[0] * Math.sin(i/10) + formax[1];
+            y2 =  200 + formax[0] * Math.sin((i+1)/10) + formax[1];
+            //y=200+((Math.sin(i/10))*100);
+            //y = 200 + Integer.parseInt(a) * Math.pow(i,2) + Integer.parseInt(b) + i;
+            //y2 = 200 + Integer.parseInt(a) * Math.pow(i+1,2) + Integer.parseInt(b) + (i+1);
+            //y2 = 200 + (Math.sin((i + 1) / 10) * 100));
             g.setColor(Color.black);
             // line[i]=new Line2D.Double(x,y,x2,y2);
             g.drawLine((int)x,(int)y,(int)x2,(int)y2);
@@ -56,7 +62,32 @@ public class GamePanel extends JPanel {
         tank1.draw(g);
         repaint();
 
-
-
     }
+
+    /**
+     * Metoda parsująca informacje o planszy do utworzenia z plików
+     * konfiguracyjnych.
+     * @return Współczynniki funkcji
+     * @throws IOException
+     */
+
+    private int[] loadMap(int[] form)
+    {
+        String a = "1",b = "2";
+        try {
+            File mapFile = new File("maplvl1.properties");
+            Properties pro = new Properties();
+            FileInputStream fis = new FileInputStream(mapFile);
+            pro.load(fis);
+            a = pro.getProperty("a");
+            b = pro.getProperty("b");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        form[0] = Integer.parseInt(a);
+        form[1] = Integer.parseInt(b);
+
+        return form;
+    }
+
 }
