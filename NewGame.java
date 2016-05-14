@@ -21,6 +21,8 @@ public class NewGame extends Frame {
 
     private Font janusz = new Font("Serif", Font.BOLD, 20);
     private GameFrame gameFrame = new GameFrame();
+    private static String name1,name2,chosenColor,chosenColor2;
+    private static int chosenNumberOfTanks;
 
     /**
      *  Konstruktor klasy <code>NewGame</code> inicjalizuje  ramki w zależności od
@@ -71,8 +73,10 @@ public class NewGame extends Frame {
         newGameFrame.add(p2);
         newGameFrame.add(p1);
 
-        JTextField player1 = new JTextField("     player 1");
-        JTextField player2 = new JTextField("     player 2");
+        JTextField player1 = new JTextField("Player 1");
+        player1.setHorizontalAlignment(JTextField.CENTER);
+        JTextField player2 = new JTextField("Player 2");
+        player2.setHorizontalAlignment(JTextField.CENTER);
         player1.setBounds(width / 10 +buttonWidth*4/2, height / 10 +(0*buttonHeight+0*20),buttonWidth,buttonHeight/2);
         player2.setBounds(width / 10 +buttonWidth*4/2, height / 10 +(1*buttonHeight+1*20),buttonWidth,buttonHeight/2);
         player1.setVisible(true);
@@ -106,6 +110,7 @@ public class NewGame extends Frame {
         jaco.setVisible(true);
         newGameFrame.add(jaco);
 
+
         Choice jaco2 = new Choice();
         jaco2.add("Czerwony");
         jaco2.add("Niebieski");
@@ -113,6 +118,8 @@ public class NewGame extends Frame {
         jaco2.setBounds(width / 6 +buttonWidth*2, height / 9 +(3*buttonHeight+3*2),buttonWidth/2,buttonHeight/2);
         jaco2.setVisible(true);
         newGameFrame.add(jaco2);
+
+
 
         JTextField tanksNumber= new JTextField("Wybierz liczbe czolgow");
         tanksNumber.setEditable(false);
@@ -129,6 +136,7 @@ public class NewGame extends Frame {
         tanksNum.setBounds(width / 2 - (buttonWidth / 3) , height / 9 +(buttonHeight*9/2)+4*2,buttonWidth/2,buttonHeight/2);
         tanksNum.setVisible(true);
         newGameFrame.add(tanksNum);
+
 
         startGameButton.setBounds(width / 6 +buttonWidth*2, height / 8 +(5*buttonHeight), buttonWidth, buttonHeight/2);
         startGameButton.setVisible(true);
@@ -155,11 +163,21 @@ public class NewGame extends Frame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 newGameFrame.setVisible(false);
-                gameFrame.createGameFrame(gFrame,mainMenuFrame);
                 gFrame.setVisible(true);
+                name1 = player1.getText();
+                name2 = player2. getText();
+                chosenColor = jaco.getSelectedItem();
+                chosenColor2 = jaco2.getSelectedItem();
+                chosenNumberOfTanks = Integer.parseInt(tanksNum.getSelectedItem());
+                gameFrame.createGameFrame(gFrame,mainMenuFrame);
             }
+
         });
     }
 
-
+    public static String getName1(){return name1;}
+    public static String getName2(){return name2;}
+    public static String getColor1(){return chosenColor;}
+    public static String getColor2(){return chosenColor2;}
+    public static int getNumOfTanks(){return chosenNumberOfTanks;}
 }
