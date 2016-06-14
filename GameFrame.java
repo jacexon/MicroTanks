@@ -88,7 +88,7 @@ public class GameFrame extends Frame
     private JPanel setSettingPanel(JPanel setPanel, JFrame gameFrame, JFrame mainMenuFrame){
         JButton shoot = new JButton("fire!"), nextTurn=new JButton("Next Turn");
         JButton right, left, rightAngle, leftAngle, rightPower, leftPower, backButton;
-        JTextField move, angle,angleMeasure, power, powerMeasure;
+        JTextField move, angle,angleMeasure, power, powerMeasure, numberOfMoves;
         JPanel weaponAndBackPanel,anglePanel,movePanel,powerPanel,backPanel, weaponPanel;
         Choice weapons;
         setPanel.setLayout(new GridLayout(2,2));
@@ -148,22 +148,28 @@ public class GameFrame extends Frame
             power.setFont(ft);
             power.setForeground(new Color(8,124,89));
             power.setBackground(new Color(119,166,206));
-            angleMeasure = new JTextField("number");
+            angleMeasure = new JTextField("145");
             angleMeasure.setFont(ft2);
             angleMeasure.setForeground(Color.black);
             angleMeasure.setBackground(new Color(119,166,206));
             angleMeasure.setBorder(BorderFactory.createEmptyBorder());
-            powerMeasure = new JTextField("number");
+            powerMeasure = new JTextField("100");
             powerMeasure.setFont(ft2);
             powerMeasure.setForeground(Color.black);
             powerMeasure.setBackground(new Color(119,166,206));
             powerMeasure.setBorder(BorderFactory.createEmptyBorder());
+            numberOfMoves=new JTextField("5 moves left");
+            numberOfMoves.setFont(ft2);
+            numberOfMoves.setForeground(Color.black);
+            numberOfMoves.setBackground(new Color(119,166,206));
+            numberOfMoves.setBorder(BorderFactory.createEmptyBorder());
             weapons = new Choice();
             weapons.add("weapon1");
 
             movePanel.add(move);
             movePanel.add(left);
             movePanel.add(right);
+            movePanel.add(numberOfMoves);
             anglePanel.add(angle);
             anglePanel.add(leftAngle);
             anglePanel.add(angleMeasure);
@@ -185,6 +191,7 @@ public class GameFrame extends Frame
             setPanel.add(weaponAndBackPanel);
 
             movePanel.setVisible(true);
+            numberOfMoves.setVisible(true);
             weaponAndBackPanel.setVisible(true);
             backPanel.setVisible(true);
             weaponPanel.setVisible(true);
@@ -226,6 +233,8 @@ public class GameFrame extends Frame
                 public void actionPerformed(ActionEvent e) {
                     gamePanel.nextTurn();
                     gamePanel.requestFocus();
+                    gamePanel.endOfLevel++;
+                    numberOfMoves.setText(gamePanel.checkNumberOfMoves(gamePanel.checkTurnNumber()) + " moves left");
                 }
             });
 
@@ -233,22 +242,60 @@ public class GameFrame extends Frame
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     gamePanel.setAngle(Integer.parseInt(angleMeasure.getText()));
-                    gamePanel.setStregth(Integer.parseInt(powerMeasure.getText()));
-
+                    gamePanel.setStrength(Integer.parseInt(powerMeasure.getText()));
                     gamePanel.shot();
-
                     gamePanel.requestFocus();
+                    if (gamePanel.getTurnNumber() % 2 == 1) {
+                        gamePanel.getPlayer1().addShot();
+                    }
+                    else gamePanel.getPlayer2().addShot();
                 }
             });
 
+
+
+            rightAngle.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    gamePanel.setAngle(Integer.parseInt(angleMeasure.getText())+1);
+                    angleMeasure.setText(""+(Integer.parseInt(angleMeasure.getText())+1)+"");
+                }
+            });
+            leftAngle.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    gamePanel.setAngle(Integer.parseInt(angleMeasure.getText())-1);
+                    angleMeasure.setText(""+(Integer.parseInt(angleMeasure.getText())-1)+"");
+                }
+            });
+
+            rightPower.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    gamePanel.setStrength(Integer.parseInt(powerMeasure.getText())+1);
+                    powerMeasure.setText(""+(Integer.parseInt(powerMeasure.getText())+1));
+                }
+            });
+            leftPower.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    gamePanel.setStrength(Integer.parseInt(powerMeasure.getText())-1);
+                    powerMeasure.setText(""+(Integer.parseInt(powerMeasure.getText())-1));
+                }
+            });
 
 
             right.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        gamePanel.moveOfTank(1);
-                        gamePanel.requestFocus();
+                        if(gamePanel.checkNumberOfMoves(gamePanel.checkTurnNumber())!=0) {
+                            gamePanel.moveOfTank(1);
+                            gamePanel.requestFocus();
+                            gamePanel.changeNumberOfMoves(gamePanel.checkTurnNumber());
+
+                            numberOfMoves.setText(gamePanel.checkNumberOfMoves(gamePanel.checkTurnNumber()) + " moves left");
+                        }
                     } catch (InterruptedException e1) {
                         e1.printStackTrace();
                     }
@@ -259,15 +306,18 @@ public class GameFrame extends Frame
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        gamePanel.moveOfTank(-1);
-                        gamePanel.requestFocus();
+                        if(gamePanel.checkNumberOfMoves(gamePanel.checkTurnNumber())!=0) {
+                            gamePanel.moveOfTank(-1);
+                            gamePanel.requestFocus();
+                            gamePanel.changeNumberOfMoves(gamePanel.checkTurnNumber());
+
+                            numberOfMoves.setText(gamePanel.checkNumberOfMoves(gamePanel.checkTurnNumber()) + " moves left");
+                        }
                     } catch (InterruptedException e1) {
                         e1.printStackTrace();
                     }
                 }
             });
-
-
 
 
         }
