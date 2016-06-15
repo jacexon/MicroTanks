@@ -1,16 +1,18 @@
 import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
+        import javax.swing.*;
+        import java.awt.*;
+        import java.awt.event.ActionListener;
+        import java.awt.event.KeyEvent;
+        import java.awt.event.KeyListener;
+        import java.awt.image.BufferedImage;
+        import java.io.File;
+        import java.io.FileInputStream;
+        import java.io.IOException;
+        import java.net.MalformedURLException;
+        import java.net.URL;
+        import java.util.Properties;
+        import javax.swing.Timer;
+        import java.util.concurrent.TimeUnit;
 
 /**
  * Klasa ta odpowiada za panel rozgrywki, umieszczony on jest w klasie <code>GameFrame</code>.
@@ -54,6 +56,7 @@ public class GamePanel extends JPanel implements KeyListener {
         createTanks(tank);
         setDoubleBuffered(true);
         setFocusable(true);
+
         try {
             URL url = new URL("https://i.kinja-img.com/gawker-media/image/upload/s--wau7KSN4--/c_fit,fl_progressive,q_80,w_636/18bl3j27axli8jpg.jpg");
             bImage = ImageIO.read(url);
@@ -157,32 +160,32 @@ public class GamePanel extends JPanel implements KeyListener {
      * @return Brak
      */
     @Override
-    public void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g)
+    {
 
         super.paintComponent(g);
         double x, x2, y, y2;
+
+
+        if (level > 5)
+        {
+            g.setColor(Color.WHITE);
+            g.clearRect(0,0,getWidth(),getHeight());
+            g.setColor(Color.RED);
+            g.drawString("KONIEC GRY!", 100,100);
+        }
         int[] formax = new int[2];
         Font big = new Font("Calibri", Font.BOLD,35);
         int[] collisioCoordinates = new int[2];
         if (endOfLevel == 5) {
-           /* for (int i = 5; i >= 1; i--) {
-                try {
-                    g.clearRect(0, 0, getWidth(), getHeight());
-                    g.setFont(big);
-                    g.drawString("Zmiana poziomu za...", 100, 100);
-                    g.drawString(Integer.toString(i), getWidth() / 2, getHeight() / 10);
-                    TimeUnit.SECONDS.sleep(1);
-                } catch (InterruptedException ex) {
-                    System.err.println("SIemka");
-                }
-            }*/
+            g.setFont(big);
             player1.resetAll();
             player2.resetAll();
             endOfLevel = 1;
             level++;
         }
-        loadMap(formax);
 
+        loadMap(formax);
 
         int[] groundCoordinates = new int[this.getWidth() + 2];
         groundCoordinates = countGroundCoordinates(formax);
@@ -222,7 +225,7 @@ public class GamePanel extends JPanel implements KeyListener {
         }
 
         collisioCoordinates = detectCollision(ground);//wykrycie kolizji z ziemia i innymi czolgami
-        if (collisionDetected == true) {
+        if (collisionDetected) {
             Collisions collision = new Collisions(getWidth(), getHeight(), g, collisioCoordinates[0], collisioCoordinates[1], bImage);
             System.out.println("trafienie");
             collisionDetected = false;
@@ -262,9 +265,30 @@ public class GamePanel extends JPanel implements KeyListener {
     public int[] countGroundCoordinates(int[] coefficient) {
         int[] groundCoordinates = new int[this.getWidth() + 2];
 
+        if (level < 3){
+            for (int i = 1; i < this.getWidth() + 2; i++) {
+                groundCoordinates[i] = (int) (200 + coefficient[0] * Math.sin((double) (i) / 50) + coefficient[1]);
+            }
+        }
+        else if (level == 3)
+        {
+            for (int i = 1; i < this.getWidth() + 2; i++) {
+                groundCoordinates[i] = (int) (200 + coefficient[0] * (Math.sin(((double) i - (this.getWidth()/2))/5)/(((double)i-(this.getWidth()/2)/5) + coefficient[1])));
+            }
+        }
 
-        for (int i = 1; i < this.getWidth() + 2; i++) {
-            groundCoordinates[i] = (int) (200 + coefficient[0] * Math.sin((double) (i) / 50) + coefficient[1]);
+        else if (level == 4)
+        {
+            for (int i = 1; i < this.getWidth() + 2; i++) {
+                groundCoordinates[i] = (int) (200 + coefficient[0] * Math.sin((double) (i) / 50) + coefficient[1]);
+            }
+        }
+
+        else if (level == 5)
+        {
+            for (int i = 1; i < this.getWidth() + 2; i++) {
+                groundCoordinates[i] = (int) (200 + coefficient[0] * Math.sin((double) (i) / 50) + coefficient[1]);
+            }
         }
         return groundCoordinates;
     }
@@ -302,15 +326,15 @@ public class GamePanel extends JPanel implements KeyListener {
 
             }
 
-                if ((tank[numberOfShootingTank].getBulletFigure().intersects(tank[i].getTankFigure())) || (ground.intersects(tank[numberOfShootingTank].getBulletFigure()))) {
-                    collisionDetected = true;
-                    tank[numberOfShootingTank].setCollisionsDetected(true);
-                    numberOfAttacedTank = i;
-                    coordinatesOfCollison[0] = tank[numberOfShootingTank].getXBullet();
-                    coordinatesOfCollison[1] = tank[numberOfShootingTank].getyBullet();
-                }
-
+            if ((tank[numberOfShootingTank].getBulletFigure().intersects(tank[i].getTankFigure())) || (ground.intersects(tank[numberOfShootingTank].getBulletFigure()))) {
+                collisionDetected = true;
+                tank[numberOfShootingTank].setCollisionsDetected(true);
+                numberOfAttacedTank = i;
+                coordinatesOfCollison[0] = tank[numberOfShootingTank].getXBullet();
+                coordinatesOfCollison[1] = tank[numberOfShootingTank].getyBullet();
             }
+
+        }
         return coordinatesOfCollison;
     }
 
@@ -372,6 +396,54 @@ public class GamePanel extends JPanel implements KeyListener {
 
                 try {
                     File mapFile = new File("maplvl2.properties");
+                    Properties pro = new Properties();
+                    FileInputStream fis = new FileInputStream(mapFile);
+                    pro.load(fis);
+                    a = pro.getProperty("a");
+                    b = pro.getProperty("b");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                form[0] = Integer.parseInt(a);
+                form[1] = Integer.parseInt(b);
+                break;
+            }
+
+            case 3: {
+                try {
+                    File mapFile = new File("maplvl3.properties");
+                    Properties pro = new Properties();
+                    FileInputStream fis = new FileInputStream(mapFile);
+                    pro.load(fis);
+                    a = pro.getProperty("a");
+                    b = pro.getProperty("b");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                form[0] = Integer.parseInt(a);
+                form[1] = Integer.parseInt(b);
+                break;
+            }
+
+            case 4: {
+                try {
+                    File mapFile = new File("maplvl4.properties");
+                    Properties pro = new Properties();
+                    FileInputStream fis = new FileInputStream(mapFile);
+                    pro.load(fis);
+                    a = pro.getProperty("a");
+                    b = pro.getProperty("b");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                form[0] = Integer.parseInt(a);
+                form[1] = Integer.parseInt(b);
+                break;
+            }
+
+            case 5: {
+                try {
+                    File mapFile = new File("maplvl5.properties");
                     Properties pro = new Properties();
                     FileInputStream fis = new FileInputStream(mapFile);
                     pro.load(fis);
