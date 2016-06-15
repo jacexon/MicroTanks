@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
         import java.awt.event.KeyEvent;
         import java.awt.event.KeyListener;
-        import java.awt.image.BufferedImage;
         import java.io.File;
         import java.io.FileInputStream;
         import java.io.IOException;
@@ -13,7 +12,6 @@ import java.awt.event.ActionListener;
         import java.net.URL;
         import java.util.Properties;
         import javax.swing.Timer;
-        import java.util.concurrent.TimeUnit;
 
 /**
  * Klasa ta odpowiada za panel rozgrywki, umieszczony on jest w klasie <code>GameFrame</code>.
@@ -38,7 +36,7 @@ public class GamePanel extends JPanel implements KeyListener {
 
     private int direction;
     public int endOfLevel = 1, timerV = 0;
-    private boolean collisionDetected = false;
+    private boolean collisionDetected = false, levelHasAlreadyChanged = false;
 
 
     private Image bImage;
@@ -78,6 +76,12 @@ public class GamePanel extends JPanel implements KeyListener {
             return 1;
     }
 
+    public void weaponUpdate(){
+        for(int i=0; i<numberOfTanks;i++) {
+            tank[i].weaponCoordinatesUpdate();
+            repaint();
+        }
+    }
 
     public void changeNumberOfMoves(int firstOrSecond) {
         if (firstOrSecond == 0)
@@ -188,10 +192,10 @@ public class GamePanel extends JPanel implements KeyListener {
                         t.stop();
                         jp.setVisible(false);
                         timerV = 0;
-                        timerV = 0;
                     }
                     else
                     {
+                        g.drawString("Zmiana poziomu...",300,200);
                         timerV++;
                         jp.setValue(timerV);
                     }
@@ -284,6 +288,11 @@ public class GamePanel extends JPanel implements KeyListener {
             g.drawString(Integer.toString(player2.getPoints()), 5 * getWidth() / 8, getHeight() / 20 + 20);
             g.drawString(Integer.toString(player2.getHit()), 5 * getWidth() / 8, getHeight() /20 + 40);
             g.drawString(Integer.toString(player2.getAllShots()), 5 * getWidth() / 8, getHeight() /20 + 60);
+        }
+
+        if(levelHasAlreadyChanged) {
+            weaponUpdate();
+            levelHasAlreadyChanged = false;
         }
 
         if (level > 5)
@@ -469,6 +478,8 @@ public class GamePanel extends JPanel implements KeyListener {
             }
             form[0] = Integer.parseInt(a);
             form[1] = Integer.parseInt(b);
+        if (endOfLevel == 5) weaponUpdate();
+
 
         return form;
     }
