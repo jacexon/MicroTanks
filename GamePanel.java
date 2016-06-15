@@ -1,7 +1,8 @@
 import javax.imageio.ImageIO;
         import javax.swing.*;
         import java.awt.*;
-        import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
         import java.awt.event.KeyEvent;
         import java.awt.event.KeyListener;
         import java.awt.image.BufferedImage;
@@ -20,13 +21,15 @@ import javax.imageio.ImageIO;
  */
 public class GamePanel extends JPanel implements KeyListener {
     private Font font1 = new Font("Calibri", Font.BOLD, 20), font2 = new Font("Calibri", Font.BOLD, 12);
+    Font big = new Font("Calibri", Font.BOLD,25);
     private Tank[] tank;
     private Tank currentTank;
     Thread[] tankThreads;
     private int level = 1;
     private Player player1 = new Player(NewGame.getColor1(), NewGame.getName1());
     private Player player2 = new Player(NewGame.getColor2(), NewGame.getName2());
-
+    private Timer t;
+    private JProgressBar jp;
     private int width, height;
     private int numberOfTanks = NewGame.getNumOfTanks();
     private int turnNumber = 1;
@@ -34,7 +37,7 @@ public class GamePanel extends JPanel implements KeyListener {
     public Color firstColor = NewGame.getRealColor1(), secondColor = NewGame.getRealColor2();
 
     private int direction;
-    public int endOfLevel = 1;
+    public int endOfLevel = 1, timerV = 0;
     private boolean collisionDetected = false;
 
 
@@ -104,6 +107,12 @@ public class GamePanel extends JPanel implements KeyListener {
         return tank;
     }
 
+    public void doCountdown()
+    {
+        timerV = 0;
+        t.start();
+
+    }
     public void selectATank(Tank tank) {
 
         currentTank = tank;
@@ -162,23 +171,41 @@ public class GamePanel extends JPanel implements KeyListener {
     @Override
     public void paintComponent(Graphics g)
     {
-
         super.paintComponent(g);
         double x, x2, y, y2;
 
 
-        if (level > 5)
-        {
-            g.setColor(Color.WHITE);
-            g.clearRect(0,0,getWidth(),getHeight());
-            g.setColor(Color.RED);
-            g.drawString("KONIEC GRY!", 100,100);
-        }
         int[] formax = new int[2];
-        Font big = new Font("Calibri", Font.BOLD,35);
+
         int[] collisioCoordinates = new int[2];
-        if (endOfLevel == 5) {
-            g.setFont(big);
+        if (endOfLevel == 5)
+        {
+            t = new Timer(1000, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (timerV == 4)
+                    {
+                        t.stop();
+                        jp.setVisible(false);
+                        timerV = 0;
+                        timerV = 0;
+                    }
+                    else
+                    {
+                        timerV++;
+                        jp.setValue(timerV);
+                    }
+                }
+            });
+            t.start();
+            jp = new JProgressBar(0,4);
+            jp.setValue(0);
+            jp.setStringPainted(true);
+            this.add(jp);
+            jp.setVisible(true);
+            jp.setBounds(getWidth()/3,getHeight()/3,300,100);
+
+
             player1.resetAll();
             player2.resetAll();
             endOfLevel = 1;
@@ -259,6 +286,30 @@ public class GamePanel extends JPanel implements KeyListener {
             g.drawString(Integer.toString(player2.getAllShots()), 5 * getWidth() / 8, getHeight() /20 + 60);
         }
 
+        if (level > 5)
+        {
+            //g.setColor(Color.WHITE);
+            //g.clearRect(0,0,getWidth(),getHeight());
+            g.setColor(Color.BLACK);
+            g.setFont(big);
+            g.drawString("KONIEC GRY!", getWidth()/4,getHeight()/4);
+            if (player1.getPoints() > player2.getPoints())
+            {
+                g.drawString("Zwycięzca: " + player1.getName(),getWidth()/4,getHeight()/4 +100);
+                g.drawString("Ilość punktów: " + player1.getPoints(),getWidth()/4,getHeight()/4 +150);
+            }
+            else if (player2.getPoints() > player1.getPoints())
+            {
+                g.drawString("Zwycięzca: " + player2.getName(),getWidth()/4,getHeight()/4+100);
+                g.drawString("Ilość punktów: " + player2.getPoints(),getWidth()/4,getHeight()/43 +150);
+            }
+
+            else
+            {
+                g.drawString("Mamy remis proszę państwa!",getWidth()/4,getHeight()/4+100);
+            }
+        }
+
         repaint();
     }
 
@@ -284,7 +335,7 @@ public class GamePanel extends JPanel implements KeyListener {
             }
         }
 
-        else if (level == 5)
+        else if (level >= 5)
         {
             for (int i = 1; i < this.getWidth() + 2; i++) {
                 groundCoordinates[i] = (int) (200 + coefficient[0] * Math.sin((double) (i) / 50) + coefficient[1]);
@@ -374,89 +425,51 @@ public class GamePanel extends JPanel implements KeyListener {
 
 
     private int[] loadMap(int[] form) {
-        String a = "0", b = "0";
+        String a = "0", b = "0", nameOfFile = "";
         switch (level) {
-            case 1: {
-                try {
-                    File mapFile = new File("maplvl1.properties");
-                    Properties pro = new Properties();
-                    FileInputStream fis = new FileInputStream(mapFile);
-                    pro.load(fis);
-                    a = pro.getProperty("a");
-                    b = pro.getProperty("b");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                form[0] = Integer.parseInt(a);
-                form[1] = Integer.parseInt(b);
+            case 1:
+            {
+                nameOfFile = "maplvl1.properties";
                 break;
             }
 
-            case 2: {
-
-                try {
-                    File mapFile = new File("maplvl2.properties");
-                    Properties pro = new Properties();
-                    FileInputStream fis = new FileInputStream(mapFile);
-                    pro.load(fis);
-                    a = pro.getProperty("a");
-                    b = pro.getProperty("b");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                form[0] = Integer.parseInt(a);
-                form[1] = Integer.parseInt(b);
+            case 2:
+            {
+                nameOfFile = "maplvl2.properties";
                 break;
             }
 
-            case 3: {
-                try {
-                    File mapFile = new File("maplvl3.properties");
-                    Properties pro = new Properties();
-                    FileInputStream fis = new FileInputStream(mapFile);
-                    pro.load(fis);
-                    a = pro.getProperty("a");
-                    b = pro.getProperty("b");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                form[0] = Integer.parseInt(a);
-                form[1] = Integer.parseInt(b);
+            case 3:
+            {
+                nameOfFile = "maplvl3.properties";
                 break;
             }
 
-            case 4: {
-                try {
-                    File mapFile = new File("maplvl4.properties");
-                    Properties pro = new Properties();
-                    FileInputStream fis = new FileInputStream(mapFile);
-                    pro.load(fis);
-                    a = pro.getProperty("a");
-                    b = pro.getProperty("b");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                form[0] = Integer.parseInt(a);
-                form[1] = Integer.parseInt(b);
+            case 4:
+            {
+                nameOfFile = "maplvl4.properties";
                 break;
             }
 
-            case 5: {
-                try {
-                    File mapFile = new File("maplvl5.properties");
-                    Properties pro = new Properties();
-                    FileInputStream fis = new FileInputStream(mapFile);
-                    pro.load(fis);
-                    a = pro.getProperty("a");
-                    b = pro.getProperty("b");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                form[0] = Integer.parseInt(a);
-                form[1] = Integer.parseInt(b);
+            default:
+            {
+                nameOfFile = "maplvl5.properties";
                 break;
             }
         }
+            try {
+                File mapFile = new File(nameOfFile);
+                Properties pro = new Properties();
+                FileInputStream fis = new FileInputStream(mapFile);
+                pro.load(fis);
+                a = pro.getProperty("a");
+                b = pro.getProperty("b");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            form[0] = Integer.parseInt(a);
+            form[1] = Integer.parseInt(b);
+
         return form;
     }
 
