@@ -1,17 +1,18 @@
 import javax.imageio.ImageIO;
-        import javax.swing.*;
-        import java.awt.*;
+import javax.swing.*;
+import java.applet.Applet;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-        import java.awt.event.KeyEvent;
-        import java.awt.event.KeyListener;
-        import java.io.File;
-        import java.io.FileInputStream;
-        import java.io.IOException;
-        import java.net.MalformedURLException;
-        import java.net.URL;
-        import java.util.Properties;
-        import javax.swing.Timer;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Properties;
+import javax.swing.Timer;
 
 /**
  * Klasa ta odpowiada za panel rozgrywki, umieszczony on jest w klasie <code>GameFrame</code>.
@@ -23,23 +24,25 @@ public class GamePanel extends JPanel implements KeyListener {
     private Tank[] tank;
     private Tank currentTank;
     Thread[] tankThreads;
-    private int level = 1;
+    private int level = 5;
     private Player player1 = new Player(NewGame.getColor1(), NewGame.getName1());
     private Player player2 = new Player(NewGame.getColor2(), NewGame.getName2());
     private Timer t;
     private JProgressBar jp;
-    private int width, height;
-    private int numberOfTanks = NewGame.getNumOfTanks();
+    private int width, height, defaultWidth, defaultHeight;
+    public int numberOfTanks = NewGame.getNumOfTanks();
     private int turnNumber = 1;
     private long startTime;
     public Color firstColor = NewGame.getRealColor1(), secondColor = NewGame.getRealColor2();
 
     private int direction;
     public int endOfLevel = 1, timerV = 0;
-    private boolean collisionDetected = false, levelHasAlreadyChanged = false;
+    private boolean collisionDetected = false, levelHasAlreadyChanged = false, drawStopText = false, setDefoultSize=false, doItFuckingOnce=true;
+    JButton left, right,shoot, backButton, nextTurn;
+    Choice weapons;
 
-
-    private Image bImage;
+    private Image bImage,explosionGif, weaponImageStar, weaponImageStar2;
+    JLabel explosion;
 
     /**
      * Konstruktor klasy <code>GamePanel</code> przyjmuje wartości szerokości i wysokości panelu rozgrywki.
@@ -51,6 +54,25 @@ public class GamePanel extends JPanel implements KeyListener {
     public GamePanel(int x, int y) {
         width = x;
         height = y;
+        weaponImageStar2= null;
+
+        try {
+            URL url = new URL("http://cdn.mysitemyway.com/etc-mysitemyway/icons/legacy-previews/icons-256/rounded-glossy-black-icons-signs/095457-rounded-glossy-black-icon-signs-warning-biohazard.png");
+            weaponImageStar2 = ImageIO.read(url);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        try {
+            URL url = new URL("http://rs651.pbsrc.com/albums/uu236/416o/explosion.gif~c200");
+            explosionGif=new ImageIcon(url).getImage();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
         setPreferredSize(new Dimension(width, height));
         tank = new Tank[numberOfTanks];
         tankThreads = new Thread[numberOfTanks];
@@ -59,14 +81,16 @@ public class GamePanel extends JPanel implements KeyListener {
         setFocusable(true);
 
         try {
-            URL url = new URL("https://i.kinja-img.com/gawker-media/image/upload/s--wau7KSN4--/c_fit,fl_progressive,q_80,w_636/18bl3j27axli8jpg.jpg");
-            bImage = ImageIO.read(url);
+            URL url2 = new URL("http://www.cs.lafayette.edu/~gexia/cs104/labs/lab3/bigexplosion.gif");
+            bImage = ImageIO.read(url2);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+
+        setDefoultSize=true;
     }
 
     public int checkTurnNumber() {
@@ -100,11 +124,14 @@ public class GamePanel extends JPanel implements KeyListener {
     public Tank[] createTanks(Tank[] tank) {
         for (int i = 0; i < numberOfTanks; i++) {
             tankThreads[i] = new Thread(tank[i]);
+
             tank[i] = new Tank(width, 200, tankThreads[i]);
             if (i % 2 == 0)                                             //parzyste numery czołgów należa do gracza nr 1, nieparzyste do gracza 2
                 tank[i].colorOfTank = firstColor;
             else
                 tank[i].colorOfTank = secondColor;
+
+            tank[i].setWeaponImageStar(weaponImageStar2);
         }
 
         selectATank(tank[0]);
@@ -138,6 +165,7 @@ public class GamePanel extends JPanel implements KeyListener {
         currentTank.setReadyToShot(true);
         currentTank.releaseTheBullet();
         repaint();
+        shootDisable();
     }
 
     public Player getPlayer1(){return player1;}
@@ -163,6 +191,7 @@ public class GamePanel extends JPanel implements KeyListener {
 
         System.out.println("zmiana" + turnNumber);
         selectATank(tank[turnNumber - 1]);
+        shootEnable();
     }
 
     /**
@@ -175,6 +204,11 @@ public class GamePanel extends JPanel implements KeyListener {
     @Override
     public void paintComponent(Graphics g)
     {
+        if(setDefoultSize){
+            defaultWidth=this.getWidth();
+            defaultHeight=this.getHeight();
+            setDefoultSize=false;
+        }
         super.paintComponent(g);
         double x, x2, y, y2;
 
@@ -184,6 +218,9 @@ public class GamePanel extends JPanel implements KeyListener {
         int[] collisioCoordinates = new int[2];
         if (endOfLevel == 5)
         {
+
+            levelHasAlreadyChanged = true;
+
             t = new Timer(1000, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -192,6 +229,7 @@ public class GamePanel extends JPanel implements KeyListener {
                         t.stop();
                         jp.setVisible(false);
                         timerV = 0;
+                        drawStopText = true;
                     }
                     else
                     {
@@ -207,13 +245,15 @@ public class GamePanel extends JPanel implements KeyListener {
             jp.setStringPainted(true);
             this.add(jp);
             jp.setVisible(true);
-            jp.setBounds(getWidth()/3,getHeight()/3,300,100);
+            jp.setBounds(defaultWidth/2-defaultWidth/8,defaultHeight/2-defaultHeight/8,defaultWidth/4,defaultHeight/4);
 
 
             player1.resetAll();
             player2.resetAll();
             endOfLevel = 1;
             level++;
+
+
         }
 
         loadMap(formax);
@@ -236,8 +276,12 @@ public class GamePanel extends JPanel implements KeyListener {
             // line[i]=new Line2D.Double(x,y,x2,y2);
         }
         // normowanie punktów
-        float xScale = (float) getWidth() / 640;
-        float yScale = (float) getHeight() / 380;
+        // float xScale = (float) getWidth() / 640;
+        //  float yScale = (float) getHeight() / 380;
+
+        float xScale = (float) this.getWidth() / defaultWidth;
+        float yScale = (float) this.getHeight() / defaultHeight;
+
         // skalowanie komponentów
         ((Graphics2D) g).scale(xScale, yScale);
         g.setColor(Color.green);
@@ -258,36 +302,44 @@ public class GamePanel extends JPanel implements KeyListener {
         collisioCoordinates = detectCollision(ground);//wykrycie kolizji z ziemia i innymi czolgami
         if (collisionDetected) {
             Collisions collision = new Collisions(getWidth(), getHeight(), g, collisioCoordinates[0], collisioCoordinates[1], bImage);
-            System.out.println("trafienie");
+            //System.out.println("trafienie");
             collisionDetected = false;
         }
 
+        if(drawStopText){
+            String text="To start new Level, please press space";
+            g.setColor(Color.red);
+            g.setFont(font1);
+            g.drawString(text,defaultWidth/5,defaultHeight/10);
+        }
+
+        double b= 0.8, a=0.05;
         if (turnNumber % 2 == 1) {
             g.setFont(font1);
             g.setColor(firstColor);
-            g.drawString(player1.getName(), getWidth() / 20, getHeight() / 20);
-            g.drawString(Integer.toString(player1.getPoints()), getWidth() / 20, getHeight() / 20 + 20);
-            g.drawString(Integer.toString(player1.getHit()), getWidth() / 20, getHeight() /20 + 40);
-            g.drawString(Integer.toString(player1.getAllShots()),getWidth() / 20, getHeight() /20 + 60);
+            g.drawString(player1.getName(), (int)(defaultWidth*a), (int)(defaultHeight*a));
+            g.drawString(Integer.toString(player1.getPoints()), (int)(defaultWidth*a), (int)(defaultHeight*a+20));
+            g.drawString(Integer.toString(player1.getHit()), (int)(defaultWidth*a), (int)(defaultHeight*a+40));
+            g.drawString(Integer.toString(player1.getAllShots()),(int)(defaultWidth*a), (int)(defaultHeight*a+60));
             g.setFont(font2);
             g.setColor(secondColor);
-            g.drawString(player2.getName(), 5 * getWidth() / 8, getHeight() / 20);
-            g.drawString(Integer.toString(player2.getPoints()), 5 * getWidth() / 8, getHeight() / 20 + 20);
-            g.drawString(Integer.toString(player2.getHit()), 5 * getWidth() / 8, getHeight() /20 + 40);
-            g.drawString(Integer.toString(player2.getAllShots()), 5 * getWidth() / 8, getHeight() /20 + 60);
+            g.drawString(player2.getName(),(int)(defaultWidth*b), (int)(defaultHeight*a));
+            g.drawString(Integer.toString(player2.getPoints()), (int)(defaultWidth*b), (int)(defaultHeight*a+20));
+            g.drawString(Integer.toString(player2.getHit()), (int)(defaultWidth*b), (int)(defaultHeight*a+40));
+            g.drawString(Integer.toString(player2.getAllShots()), (int)(defaultWidth*b), (int)(defaultHeight*a+60));
         } else {
             g.setFont(font2);
             g.setColor(firstColor);
-            g.drawString(player1.getName(), getWidth() / 20, getHeight() / 20);
-            g.drawString(Integer.toString(player1.getPoints()), getWidth() / 20, getHeight() / 20 + 20);
-            g.drawString(Integer.toString(player1.getHit()),  getWidth() / 20, getHeight() /20 + 40);
-            g.drawString(Integer.toString(player1.getAllShots()), getWidth() / 20, getHeight() /20 + 60);
+            g.drawString(player1.getName(), (int)(defaultWidth*a), (int)(defaultHeight*a));
+            g.drawString(Integer.toString(player1.getPoints()), (int)(defaultWidth*a), (int)(defaultHeight*a+20));
+            g.drawString(Integer.toString(player1.getHit()), (int)(defaultWidth*a), (int)(defaultHeight*a+40));
+            g.drawString(Integer.toString(player1.getAllShots()),(int)(defaultWidth*a), (int)(defaultHeight*a+60));
             g.setFont(font1);
             g.setColor(secondColor);
-            g.drawString(player2.getName(), 5 * getWidth() / 8, getHeight() / 20);
-            g.drawString(Integer.toString(player2.getPoints()), 5 * getWidth() / 8, getHeight() / 20 + 20);
-            g.drawString(Integer.toString(player2.getHit()), 5 * getWidth() / 8, getHeight() /20 + 40);
-            g.drawString(Integer.toString(player2.getAllShots()), 5 * getWidth() / 8, getHeight() /20 + 60);
+            g.drawString(player2.getName(),(int)(defaultWidth*b), (int)(defaultHeight*a));
+            g.drawString(Integer.toString(player2.getPoints()), (int)(defaultWidth*b), (int)(defaultHeight*a+20));
+            g.drawString(Integer.toString(player2.getHit()), (int)(defaultWidth*b), (int)(defaultHeight*a+40));
+            g.drawString(Integer.toString(player2.getAllShots()), (int)(defaultWidth*b), (int)(defaultHeight*a+60));
         }
 
         if(levelHasAlreadyChanged) {
@@ -322,6 +374,7 @@ public class GamePanel extends JPanel implements KeyListener {
         repaint();
     }
 
+
     public int[] countGroundCoordinates(int[] coefficient) {
         int[] groundCoordinates = new int[this.getWidth() + 2];
 
@@ -353,6 +406,7 @@ public class GamePanel extends JPanel implements KeyListener {
         return groundCoordinates;
     }
 
+
     private int[] detectCollision(Polygon ground) {
         int numberOfShootingTank = 0;
         int[] coordinatesOfCollison = new int[2];
@@ -365,7 +419,7 @@ public class GamePanel extends JPanel implements KeyListener {
 
         for (int i = 0; i < numberOfTanks; i++) {
             if (tank[numberOfShootingTank].getBulletFigure().intersects(tank[i].getTankFigure())) {
-                System.out.println("czolg trafiony");
+                //  System.out.println("czolg trafiony");
                 numberOfAttacedTank = i;
                 //collisionDetected = true;
                 if (numberOfShootingTank % 2 == 0) {
@@ -381,7 +435,7 @@ public class GamePanel extends JPanel implements KeyListener {
             }
 
             if (ground.intersects(tank[numberOfShootingTank].getBulletFigure())) {
-                System.out.println("ziemia trafiona");
+                // System.out.println("ziemia trafiona");
                 tank[numberOfShootingTank].setCollisionsDetected(true);
 
             }
@@ -466,20 +520,18 @@ public class GamePanel extends JPanel implements KeyListener {
                 break;
             }
         }
-            try {
-                File mapFile = new File(nameOfFile);
-                Properties pro = new Properties();
-                FileInputStream fis = new FileInputStream(mapFile);
-                pro.load(fis);
-                a = pro.getProperty("a");
-                b = pro.getProperty("b");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            form[0] = Integer.parseInt(a);
-            form[1] = Integer.parseInt(b);
-        if (endOfLevel == 5) weaponUpdate();
-
+        try {
+            File mapFile = new File(nameOfFile);
+            Properties pro = new Properties();
+            FileInputStream fis = new FileInputStream(mapFile);
+            pro.load(fis);
+            a = pro.getProperty("a");
+            b = pro.getProperty("b");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        form[0] = Integer.parseInt(a);
+        form[1] = Integer.parseInt(b);
 
         return form;
     }
@@ -505,8 +557,13 @@ public class GamePanel extends JPanel implements KeyListener {
             currentTank.setXDirection(1);
         }
         if (keyCode == e.VK_SPACE) {
-            //currentTank.startTime=System.currentTimeMillis();
-            currentTank.releaseTheBullet();
+            right.setEnabled(true);
+            left.setEnabled(true);
+            backButton.setEnabled(true);
+            nextTurn.setEnabled(true);
+            shoot.setEnabled(true);
+            weapons.setEnabled(true);
+            drawStopText=false;
         }
     }
 
@@ -524,5 +581,30 @@ public class GamePanel extends JPanel implements KeyListener {
         if (keyCode == e.VK_RIGHT) {
             currentTank.setXDirection(0);
         }
+    }
+
+    public void addSettingsButtons(JButton l, JButton r, JButton sh, JButton bb, JButton nt, Choice w){
+        left=l;
+        right=r;
+        shoot=sh;
+        backButton=bb;
+        nextTurn=nt;
+        weapons=w;
+    }
+    public void shootDisable(){
+        shoot.setEnabled(false);
+    }
+    public void shootEnable(){
+        shoot.setEnabled(true);
+    }
+    public Tank getCurrentTank(){return currentTank;}
+    private void disableButtons(){
+        right.setEnabled(false);
+        left.setEnabled(false);
+        backButton.setEnabled(true);
+        nextTurn.setEnabled(false);
+        shoot.setEnabled(false);
+        weapons.setEnabled(false);
+
     }
 }
