@@ -3,10 +3,7 @@ import sun.plugin2.util.ColorUtil;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.awt.geom.Line2D;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -72,6 +69,7 @@ public class GameFrame extends Frame
         gamePanel.setLayout(new GridBagLayout());
         gamePanel.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+
 
     }
 
@@ -164,7 +162,10 @@ public class GameFrame extends Frame
             numberOfMoves.setBackground(new Color(119,166,206));
             numberOfMoves.setBorder(BorderFactory.createEmptyBorder());
             weapons = new Choice();
-            weapons.add("weapon1");
+            weapons.add("simple shot");
+            weapons.add("big shot");
+            weapons.add("crazy shot");
+            weapons.add("toxic");
 
             movePanel.add(move);
             movePanel.add(left);
@@ -217,10 +218,29 @@ public class GameFrame extends Frame
             setPanel.setFocusable(false);
             gamePanel.setFocusable(true);
 
+            gamePanel.addSettingsButtons(left,right,shoot,backButton,nextTurn,weapons);
+
+            weapons.addItemListener(new ItemListener() {
+                String sampleText="";
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    sampleText=weapons.getSelectedItem().toString();
+                    if(sampleText.equals("simple shot"))
+                        gamePanel.getCurrentTank().setChosenWepon(1);
+                    if(sampleText.equals("big shot"))
+                        gamePanel.getCurrentTank().setChosenWepon(2);
+                    if(sampleText.equals("crazy shot"))
+                        gamePanel.getCurrentTank().setChosenWepon(3);
+                    if(sampleText.equals("toxic"))
+                        gamePanel.getCurrentTank().setChosenWepon(4);
+                }
+            });
+
             backButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     gameFrame.setVisible(false);
+                    BestScores.saveScores(gamePanel.getPlayer1(),gamePanel.getPlayer2(),gamePanel.numberOfTanks/2);
                     gameFrame.remove(gamePanel);
                     gameFrame.remove(setPanel);
                     mainMenuFrame.setVisible(true);
@@ -231,10 +251,30 @@ public class GameFrame extends Frame
             nextTurn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    String sampleText="";
                     gamePanel.nextTurn();
                     gamePanel.requestFocus();
                     gamePanel.endOfLevel++;
+
+                    sampleText=weapons.getSelectedItem().toString();
+                    if(sampleText.equals("simple shot"))
+                        gamePanel.getCurrentTank().setChosenWepon(1);
+                    if(sampleText.equals("big shot"))
+                        gamePanel.getCurrentTank().setChosenWepon(2);
+                    if(sampleText.equals("crazy shot"))
+                        gamePanel.getCurrentTank().setChosenWepon(3);
+                    if(sampleText.equals("toxic"))
+                        gamePanel.getCurrentTank().setChosenWepon(4);
+                    if(gamePanel.endOfLevel==5){
+                        backButton.setEnabled(false);
+                        nextTurn.setEnabled(false);
+                        shoot.setEnabled(false);
+                        weapons.setEnabled(false);
+                        right.setEnabled(false);
+                        left.setEnabled(false);
+                    }
                     numberOfMoves.setText(gamePanel.checkNumberOfMoves(gamePanel.checkTurnNumber()) + " moves left");
+                    //gamePanel.repaint();
                 }
             });
 
@@ -251,7 +291,6 @@ public class GameFrame extends Frame
                     else gamePanel.getPlayer2().addShot();
                 }
             });
-
 
 
             rightAngle.addActionListener(new ActionListener() {
