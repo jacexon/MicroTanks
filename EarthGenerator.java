@@ -43,21 +43,5 @@ public class EarthGenerator extends Frame{
 
         return gamePanel;
     }
-
-    /**
-     * Metoda parsująca informacje o planszy do utworzenia z plików
-     * konfiguracyjnych.
-     * @return Wzór funkcji
-     * @throws IOException
-     */
-    public String loadMap() throws IOException
-    {
-        File mapFile = new File("maplvl1.properties");
-        Properties pro = new Properties();
-        FileInputStream fis = new FileInputStream(mapFile);
-        pro.load(fis);
-        String jaco = pro.getProperty("Janusz");
-        fis.close();
-        return jaco;
-    }
+    
 }
