@@ -52,9 +52,13 @@ public class Authors extends Frame
         authorsArea.setBounds(width/20,2*height/12+height/9,width*9/10,height/2);
         authorsFrame.setResizable(false);
 
-        titleAuthors.setText("ZASADY GRY");
+        titleAuthors.setText("AUTORZY");
         titleAuthors.setFont(title);
         titleAuthors.setHorizontalAlignment(JTextField.CENTER);
+        Font big = new Font("Calibri", Font.BOLD, 25);
+        authorsArea.setFont(big);
+        authorsArea.setText("Jacek Polak\n" + "Bartłomiej Bielecki");
+        authorsArea.setEditable(false);
         authorsArea.setVisible(true);
         authorsFrame.add(authorsArea);
         authorsFrame.add(titleAuthors);
