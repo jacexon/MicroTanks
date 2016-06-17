@@ -14,17 +14,24 @@ import java.net.URL;
 import java.util.Properties;
 import javax.swing.Timer;
 
+
 /**
- * Klasa ta odpowiada za panel rozgrywki, umieszczony on jest w klasie <code>GameFrame</code>.
+ * Klasa <code>GamePanel</code> jest odpowiedzialna za okno rozgrywki.
  *
+ * @author      Bartłomiej Bielecki <address @ example.com>
+ * @author      Jacek Polak <polakjacek@gmail.com>
+ * @version     1.1
+ * @since       2016-03-26
  */
+
+
 public class GamePanel extends JPanel implements KeyListener {
     private Font font1 = new Font("Calibri", Font.BOLD, 20), font2 = new Font("Calibri", Font.BOLD, 12);
     Font big = new Font("Calibri", Font.BOLD,25);
     private Tank[] tank;
     private Tank currentTank;
     Thread[] tankThreads;
-    private int level = 5;
+    private int level = 1;
     private Player player1 = new Player(NewGame.getColor1(), NewGame.getName1());
     private Player player2 = new Player(NewGame.getColor2(), NewGame.getName2());
     private Timer t;
@@ -46,7 +53,7 @@ public class GamePanel extends JPanel implements KeyListener {
 
     /**
      * Konstruktor klasy <code>GamePanel</code> przyjmuje wartości szerokości i wysokości panelu rozgrywki.
-     *
+     * Pobiera obrazki z internetu.
      * @param x Szerokość panelu gry
      * @param y Wysokość panelu gry
      */
@@ -93,12 +100,23 @@ public class GamePanel extends JPanel implements KeyListener {
         setDefoultSize=true;
     }
 
+
+    /**
+     * Metoda ta zwraca 0 lub 1 w zależności od tego, czyja teraz kolej.
+     * @return flaga
+     */
+
+
     public int checkTurnNumber() {
         if (turnNumber % 2 == 1)
             return 0;
         else
             return 1;
     }
+
+    /**
+     * Metoda służy do uaktualniania położenia pocisku przy zmianie poziomów.
+     */
 
     public void weaponUpdate(){
         for(int i=0; i<numberOfTanks;i++) {
@@ -107,6 +125,12 @@ public class GamePanel extends JPanel implements KeyListener {
         }
     }
 
+    /**
+     * Metoda zmieniająca ilość dostępnych ruchów w zależności czy użytkownik jakiś wykonał
+     * @param firstOrSecond numer gracza
+     *
+     */
+
     public void changeNumberOfMoves(int firstOrSecond) {
         if (firstOrSecond == 0)
             player1.oneMove();
@@ -114,12 +138,24 @@ public class GamePanel extends JPanel implements KeyListener {
             player2.oneMove();
     }
 
+    /**
+     * Metoda sprawdzająca ilość dostępnych ruchów danego gracza
+     * @param firstOrSecond numer gracza
+     *
+     */
+
     public int checkNumberOfMoves(int firstOrSecond) {
         if (firstOrSecond == 0)
             return player1.checkNumberOfMoves();
         else
             return player2.checkNumberOfMoves();
     }
+
+    /**
+     * Metoda służąca do utworzenia czołgów na planszy i ustawienia im obrazka.
+     * @param tank Tablica na czołgi
+     *@return Tablica czołgów
+     */
 
     public Tank[] createTanks(Tank[] tank) {
         for (int i = 0; i < numberOfTanks; i++) {
@@ -138,12 +174,13 @@ public class GamePanel extends JPanel implements KeyListener {
         return tank;
     }
 
-    public void doCountdown()
-    {
-        timerV = 0;
-        t.start();
 
-    }
+    /**
+     * Metoda wybierająca dany czołg w turze.
+     * @param tank Czołg
+     *
+     */
+
     public void selectATank(Tank tank) {
 
         currentTank = tank;
@@ -155,12 +192,22 @@ public class GamePanel extends JPanel implements KeyListener {
         repaint();
     }
 
+    /**
+     * Metoda odpowiadająca za poruszanie się czołgu
+     * @param dir Kierunek jazdy
+     *
+     */
+
     public void moveOfTank(int dir) throws InterruptedException {
         currentTank.setCurrentTankStartPosition(currentTank.getX());
         currentTank.setEndOfMove(false);
         direction = dir;
     }
 
+    /**
+     * Metoda odpowiadająca za strzał czołgu. Możliwe jest to raz na turę, jest po razie blokowane.
+     *
+     */
     public void shot() {
         currentTank.setReadyToShot(true);
         currentTank.releaseTheBullet();
@@ -168,19 +215,50 @@ public class GamePanel extends JPanel implements KeyListener {
         shootDisable();
     }
 
+    /**
+     * Metoda zwracająca obiekt gracza pierwszego
+     * @return player1 Gracz pierwszy
+     *
+     */
     public Player getPlayer1(){return player1;}
+    /**
+     * Metoda zwracająca obiekt gracza drugiego
+     * @return player2 Gracz drugi
+     *
+     */
     public Player getPlayer2(){return player2;}
 
+    /**
+     * Metoda ustawiająca kąt wystrzału.
+     * @param angle kąt wystrzału
+     *
+     */
     public void setAngle(int angle) {
         currentTank.setAngleOfShot(angle);
     }
+
+
+    /**
+     * Metoda ustawiająca siłę strzału.
+     * @param strength Siła strzału
+     *
+     */
 
     public void setStrength(int strength) {
         currentTank.setStrengthOfShot(strength);
     }
 
+    /**
+     * Metoda zwracająca numer obecnie rozgrywanej tury.
+     * @return turnNumber Numer tury
+     *
+     */
     public int getTurnNumber() {return turnNumber;}
 
+    /**
+     * Metoda zmieniająca turę na następną.
+     *
+     */
     public void nextTurn() {
         System.out.println("zmiana" + turnNumber + "    " + numberOfTanks);
         if (turnNumber < numberOfTanks) {
@@ -216,36 +294,33 @@ public class GamePanel extends JPanel implements KeyListener {
         int[] formax = new int[2];
 
         int[] collisioCoordinates = new int[2];
-        if (endOfLevel == 5)
+        if (endOfLevel == 11)
         {
-
             levelHasAlreadyChanged = true;
-
-            t = new Timer(1000, new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (timerV == 4)
-                    {
-                        t.stop();
-                        jp.setVisible(false);
-                        timerV = 0;
-                        drawStopText = true;
-                    }
-                    else
-                    {
-                        g.drawString("Zmiana poziomu...",300,200);
-                        timerV++;
-                        jp.setValue(timerV);
-                    }
-                }
-            });
-            t.start();
-            jp = new JProgressBar(0,4);
-            jp.setValue(0);
-            jp.setStringPainted(true);
-            this.add(jp);
-            jp.setVisible(true);
-            jp.setBounds(defaultWidth/2-defaultWidth/8,defaultHeight/2-defaultHeight/8,defaultWidth/4,defaultHeight/4);
+           if (level <=4) {
+               t = new Timer(1000, new ActionListener() {
+                   @Override
+                   public void actionPerformed(ActionEvent e) {
+                       if (timerV == 4) {
+                           t.stop();
+                           jp.setVisible(false);
+                           timerV = 0;
+                           drawStopText = true;
+                       } else {
+                           g.drawString("Zmiana poziomu...", 300, 200);
+                           timerV++;
+                           jp.setValue(timerV);
+                       }
+                   }
+               });
+               t.start();
+               jp = new JProgressBar(0, 4);
+               jp.setValue(0);
+               jp.setStringPainted(true);
+               this.add(jp);
+               jp.setVisible(true);
+               jp.setBounds(defaultWidth / 2 - defaultWidth / 8, defaultHeight / 2 - defaultHeight / 8, defaultWidth / 3, defaultHeight / 6);
+           }
 
 
             player1.resetAll();
@@ -374,6 +449,11 @@ public class GamePanel extends JPanel implements KeyListener {
         repaint();
     }
 
+    /**
+     * Metoda sterująca budowaniem poziomów w zależności od danych zczytanych z plików konfiguracyjnych
+     * @param coefficient Tablica na współczynniki funkcji
+     * @return  Tablica współczynników funkcji
+     */
 
     public int[] countGroundCoordinates(int[] coefficient) {
         int[] groundCoordinates = new int[this.getWidth() + 2];
@@ -406,6 +486,11 @@ public class GamePanel extends JPanel implements KeyListener {
         return groundCoordinates;
     }
 
+    /**
+     * Metoda zwracająca współrzędne wykrycia kolizji pocisku z ziemią lub czołgiem
+     * @param ground Figura stanowiąca plansze
+     * @return Tablica współrzędnych
+     */
 
     private int[] detectCollision(Polygon ground) {
         int numberOfShootingTank = 0;
@@ -453,7 +538,12 @@ public class GamePanel extends JPanel implements KeyListener {
     }
 
 
-
+    /**
+     * Metoda obliczająca ilość punktów zdobytych przy jednym trafieniu.
+     * @param numberOfShootingTank Indeks czołgu, który obecnie strzela
+     * @param numberOfAttacedTank Indeks czołgu atakowanego
+     * @return Punkty
+     */
     public int countingTheNumberOfScoredPoints(int numberOfShootingTank, int numberOfAttacedTank){
         double points=0.0;
         double p=((double)100/(Math.abs((tank[numberOfShootingTank].getXBullet()-tank[numberOfAttacedTank].getX())*(tank[numberOfShootingTank].getXBullet()-tank[numberOfAttacedTank].getX()))))*10;
@@ -536,6 +626,11 @@ public class GamePanel extends JPanel implements KeyListener {
         return form;
     }
 
+    /**
+     * Metoda ustawiająca kierunek czołgu.
+     *
+     * @param e KeyEvent
+     */
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -583,6 +678,16 @@ public class GamePanel extends JPanel implements KeyListener {
         }
     }
 
+    /**
+     * Metoda odpowiedzialna za dodawanie przycisków do panelu z grą.
+     *
+     * @param l Przycisk
+     * @param r Przycisk
+     * @param sh Przycisk
+     * @param bb Przycisk
+     * @param nt Przycisk
+     * @param w Rozwijane menu
+     */
     public void addSettingsButtons(JButton l, JButton r, JButton sh, JButton bb, JButton nt, Choice w){
         left=l;
         right=r;
@@ -591,13 +696,31 @@ public class GamePanel extends JPanel implements KeyListener {
         nextTurn=nt;
         weapons=w;
     }
+
+
+    /**
+     * Metoda wyłączająca możliwość strzału dla gracza, który jeden strzał w turze już oddał
+     *
+     */
     public void shootDisable(){
         shoot.setEnabled(false);
     }
+    /**
+     * Metoda włączająca możliwość strzału dla gracza.
+     *
+     */
     public void shootEnable(){
         shoot.setEnabled(true);
     }
+    /**
+     * Metoda zwracająca obiekt klasy Czołg, który obecnie jest grającym.
+     * @return Obecny czołg
+     */
     public Tank getCurrentTank(){return currentTank;}
+    /**
+     * Metoda wyłączająca funkcjonalność przycisków podczas zmiany planszy, aby
+     * niczego nie zmienić
+     */
     private void disableButtons(){
         right.setEnabled(false);
         left.setEnabled(false);
