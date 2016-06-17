@@ -14,22 +14,37 @@ import java.util.*;
  *
  * @author      Bartłomiej Bielecki <address @ example.com>
  * @author      Jacek Polak <polakjacek@gmail.com>
- * @version     1.1
+ * @version     3.14
  * @since       2016-03-26
  */
 
 public class BestScores extends Frame {
 
+
+    private static JTextField[] tanksScores1 = new JTextField[11];
+    private static JTextField[] tanksScores2 = new JTextField[11];
+    private static JTextField[] tanksScores3 = new JTextField[11];
+    static String[][] containersName = new String[3][10];
+    static String[][] containersPoints = new String[3][10];
+    private static String[] places1 = {"place11", "place12", "place13", "place14", "place15",
+            "place16", "place17", "place18", "place19", "place110"};
+    private static String[] places2 = {"place21", "place22", "place23", "place24", "place25",
+            "place26", "place27", "place28", "place29", "place210"};
+    private static String[] places3 = {"place31", "place32", "place33", "place34", "place35",
+            "place36", "place37", "place38", "place39", "place310"};
+
+    private static String[] points1 = {"points11", "points12", "points13", "points14", "points15", "points16", "points17", "points18",
+            "points19", "points110"};
+    private static String[] points2 = {"points21", "points22", "points23", "points24", "points25", "points26", "points27", "points28",
+            "points29", "points210"};
+    private static String[] points3 = {"points31", "points32", "points33", "points34", "points35", "points36", "points37", "points38",
+            "points39", "points310"};
+
+
     /**
      * Konstruktor klasy <code>BestScores</code> ustawia lokalne wymiary ramki w zależności
      * od wymiarów ekranu urządzenia uruchamiającego program
      */
-    static JTextField[] tanksScores1 = new JTextField[11];
-    static JTextField[] tanksScores2 = new JTextField[11];
-    static JTextField[] tanksScores3 = new JTextField[11];
-    static String[][] containersName = new String[3][10];
-    static String[][] containersPoints = new String[3][10];
-
     public BestScores() {
         this.width = width * 3 / 4;
         this.height = height * 3 / 4;
@@ -46,7 +61,6 @@ public class BestScores extends Frame {
      *
      * @param BestScoresFrame Ramka, na której umieszczone są pola tekstowe z najlepszymi wynikami
      * @param mainMenuFrame   Ramka menu głównego, do którego powrócimy przyciskiem "Back"
-     * @return Brak
      */
 
     public void createABestScoresFrame(JFrame BestScoresFrame, JFrame mainMenuFrame) {
@@ -127,19 +141,6 @@ public class BestScores extends Frame {
      */
 
     public static void readBestScores() {
-        String[] places1 = {"place11", "place12", "place13", "place14", "place15",
-                "place16", "place17", "place18", "place19", "place110"};
-        String[] places2 = {"place21", "place22", "place23", "place24", "place25",
-                "place26", "place27", "place28", "place29", "place210"};
-        String[] places3 = {"place31", "place32", "place33", "place34", "place35",
-                "place36", "place37", "place38", "place39", "place310"};
-
-        String[] points1 = {"points11", "points12", "points13", "points14", "points15", "points16", "points17", "points18",
-                "points19", "points110"};
-        String[] points2 = {"points21", "points22", "points23", "points24", "points25", "points26", "points27", "points28",
-                "points29", "points210"};
-        String[] points3 = {"points31", "points32", "points33", "points34", "points35", "points36", "points37", "points38",
-                "points39", "points310"};
 
 
         try {
@@ -155,10 +156,13 @@ public class BestScores extends Frame {
                 containersPoints[1][b] = prop.getProperty(points2[b]);
                 containersPoints[2][b] = prop.getProperty(points3[b]);
 
+                //tanksScores1[b + 1]=new JTextField();
                 tanksScores1[b + 1].setText(containersName[0][b] + "  " + containersPoints[0][b]);
                 tanksScores1[b + 1].setHorizontalAlignment(JTextField.CENTER);
+                //tanksScores2[b + 1]=new JTextField();
                 tanksScores2[b + 1].setText(containersName[1][b] + "  " + containersPoints[1][b]);
                 tanksScores2[b + 1].setHorizontalAlignment(JTextField.CENTER);
+                //tanksScores3[b + 1]=new JTextField();
                 tanksScores3[b + 1].setText(containersName[2][b] + "  " + containersPoints[2][b]);
                 tanksScores3[b + 1].setHorizontalAlignment(JTextField.CENTER);
             }
@@ -172,13 +176,42 @@ public class BestScores extends Frame {
         }
     }
 
+    /**
+     * Metoda ta zapisuje do pliku najlepsze wyniki z poszczególnych typów
+     * rozgrywek. Wykorzystuje klasę <code>Properties</code>.
+     *
+     * @param winner Obiekt klasy gracz, zwycięzca
+     * @param second Przegrany
+     * @param amountOfTanks Tryb gry
+     * @see IOException
+     * @see FileNotFoundException
+     */
 
     public static void saveScores(Player winner, Player second, int amountOfTanks) {
+        // readBestScores();
         try {
-            readBestScores();
+            File cfgfile = new File("bestScores.properties");
+            FileInputStream fis = new FileInputStream(cfgfile);
+            Properties prop = new Properties();
+            prop.load(fis);
+            for (int b = 0; b < 10; b++) {
+                containersName[0][b] = prop.getProperty(places1[b]);
+                containersName[1][b] = prop.getProperty(places2[b]);
+                containersName[2][b] = prop.getProperty(places3[b]);
+                containersPoints[0][b] = prop.getProperty(points1[b]);
+                containersPoints[1][b] = prop.getProperty(points2[b]);
+                containersPoints[2][b] = prop.getProperty(points3[b]);
 
-            File cfg = new File("bestScores.properties");
-            Properties pro = new Properties();
+            }
+            fis.close();
+        } catch (FileNotFoundException e) {
+            System.err.println("FNFException!");
+            e.printStackTrace();
+        } catch (IOException f) {
+            System.err.println("IOException!");
+            f.printStackTrace();
+        }
+        try{
 
             int newWinnerPlace = checkPlace(amountOfTanks,winner.getPoints());
             int newSecondPlace = checkPlace(amountOfTanks,second.getPoints());
@@ -186,13 +219,14 @@ public class BestScores extends Frame {
             ArrayList<String> namesList = new ArrayList<>();
             ArrayList<String> pointsList = new ArrayList<>();
 
+
             for (int i=0;i<=9;i++)
             {
-                namesList.add(containersName[amountOfTanks][i]);
+                namesList.add(containersName[amountOfTanks-1][i]);
             }
             for (int j=0;j<=9;j++)
             {
-                namesList.add(containersPoints[amountOfTanks][j]);
+                pointsList.add(containersPoints[amountOfTanks-1][j]);
             }
 
             namesList.add(newWinnerPlace-1,winner.getName());
@@ -208,16 +242,40 @@ public class BestScores extends Frame {
 
             for (int i=0;i<=9;i++)
             {
-                containersName[amountOfTanks][i] = namesList.get(i);
-                containersPoints[amountOfTanks][i] = pointsList.get(i);
+                containersName[amountOfTanks-1][i] = namesList.get(i);
+                containersPoints[amountOfTanks-1][i] = pointsList.get(i);
             }
 
+            File cfg = new File("bestScores.properties");
             FileOutputStream fos = new FileOutputStream(cfg);
+            Properties pro = new Properties();
+
+            int o=0,p=0;
+            if(amountOfTanks==1){
+                o=2;
+                p=3;
+            }
+            if(amountOfTanks==2){
+                o=1;
+                p=3;
+            }
+            if(amountOfTanks==3){
+                o=1;
+                p=2;
+            }
+
             for (int c = 1; c<=10;c++)
             {
-                pro.replace("place" + Integer.toString(amountOfTanks) + c, containersName[amountOfTanks][c-1]);
-                pro.replace("points" + Integer.toString(amountOfTanks) + c, containersPoints[amountOfTanks][c-1]);
+                String pro1="place" + Integer.toString(amountOfTanks) + c, pro2="points" + Integer.toString(amountOfTanks) + c;
+
+                pro.setProperty(pro1, containersName[amountOfTanks-1][c-1]);
+                pro.setProperty(pro2, containersPoints[amountOfTanks-1][c-1]);
+                pro.setProperty("place" + Integer.toString(o) + c, containersName[o-1][c-1]);
+                pro.setProperty("points" + Integer.toString(o) + c, containersPoints[o-1][c-1]);
+                pro.setProperty("place" + Integer.toString(p) + c, containersName[p-1][c-1]);
+                pro.setProperty("points" + Integer.toString(p) + c, containersPoints[p-1][c-1]);
             }
+            pro.store(fos,"Hall of Fame");
 
             fos.close();
         } catch (IOException e) {
@@ -225,13 +283,22 @@ public class BestScores extends Frame {
         }
     }
 
+    /**
+     * Metoda służąca do obliczenia miejsca, na którym ma znajdować się nowy zdobyty wynik
+     *
+     * @param amount Tryb gry
+     * @param points punkty
+     * @return Miejsce, na którym obecnie znajdzie się wynik
+     */
+
     public static int checkPlace(int amount, int points)
     {
-        Integer[] numbers = new Integer[10];
+        Integer[] numbers = new Integer[11];
         for (int i = 0;i<10;i++)
         {
             numbers[i] = Integer.parseInt(containersPoints[amount-1][i]);
         }
+        numbers[10]=points;
         Arrays.sort(numbers, Collections.reverseOrder());
         int place = Arrays.asList(numbers).indexOf(points);
         return place+1;
