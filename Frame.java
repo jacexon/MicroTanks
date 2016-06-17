@@ -11,8 +11,8 @@ import java.awt.*;
 public abstract class Frame extends JFrame{
 
     //region Dane ekranowe
-    Toolkit kit = Toolkit.getDefaultToolkit();
-    Dimension dim = kit.getScreenSize();
+    private Toolkit kit = Toolkit.getDefaultToolkit();
+    private Dimension dim = kit.getScreenSize();
     protected int width = (int) dim.getWidth();
     protected int height = (int) dim.getHeight();
     protected int buttonHeight = height/8;
