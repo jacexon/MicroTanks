@@ -73,7 +73,7 @@ public class Exit extends Frame
         try {
             URL url = new URL("http://betanews.com/wp-content/uploads/2012/03/close-button-300x300.jpg");
             image = ImageIO.read(url);
-            image = image.getScaledInstance(width/4,height/5,150);
+            image = image.getScaledInstance(width/3,height/3,150);
         }
         catch (IOException e)
         {
