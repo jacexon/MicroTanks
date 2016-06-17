@@ -22,6 +22,7 @@ public class NewGame extends Frame {
     private Font janusz = new Font("Serif", Font.BOLD, 20);
     private GameFrame gameFrame = new GameFrame();
     private static String name1,name2,chosenColor,chosenColor2;
+    private static Color firstColor,secondColor;
     private static int chosenNumberOfTanks;
 
     /**
@@ -112,8 +113,8 @@ public class NewGame extends Frame {
 
 
         Choice jaco2 = new Choice();
-        jaco2.add("Czerwony");
         jaco2.add("Niebieski");
+        jaco2.add("Czerwony");
         jaco2.add("Zielony");
         jaco2.setBounds(width / 6 +buttonWidth*2, height / 9 +(3*buttonHeight+3*2),buttonWidth/2,buttonHeight/2);
         jaco2.setVisible(true);
@@ -168,16 +169,60 @@ public class NewGame extends Frame {
                 name2 = player2. getText();
                 chosenColor = jaco.getSelectedItem();
                 chosenColor2 = jaco2.getSelectedItem();
-                chosenNumberOfTanks = Integer.parseInt(tanksNum.getSelectedItem());
+                chosenNumberOfTanks = 2*Integer.parseInt(tanksNum.getSelectedItem());
+
+                if(chosenColor=="Czerwony")
+                    firstColor=Color.red;
+                if(chosenColor=="Niebieski")
+                    firstColor=Color.blue;
+                if(chosenColor=="Zielony")
+                    firstColor=Color.green;
+                if(chosenColor2=="Czerwony")
+                    secondColor=Color.red;
+                if(chosenColor2=="Niebieski")
+                    secondColor=Color.blue;
+                if(chosenColor2=="Zielony")
+                    secondColor=Color.green;
+
                 gameFrame.createGameFrame(gFrame,mainMenuFrame);
             }
 
         });
     }
 
+    /**
+     * Funkcja pobierająca nazwę pierwszego gracza.
+     * @return Nazwa pierwszego gracza
+     */
     public static String getName1(){return name1;}
+    /**
+     * Funkcja pobierająca nazwę drugiego gracza.
+     * @return Nazwa drugiego gracza
+     */
     public static String getName2(){return name2;}
+    /**
+     * Funkcja pobierająca informacje o kolorze czołgów gracza pierwszego
+     * @return Kolor pierwszego gracza
+     */
     public static String getColor1(){return chosenColor;}
+    /**
+     * Funkcja pobierająca informacje o kolorze czołgów gracza drugiego
+     * @return Kolor drugiego gracza
+     */
     public static String getColor2(){return chosenColor2;}
+    /**
+     * Funkcja pobierająca obiekt klasy <code>Color</code>, za pomocą którego ustawiany jest kolor pierwszego gracza
+     * @return Kolor pierwszego gracza
+     */
+    public static Color getRealColor1(){return firstColor;}
+    /**
+     * Funkcja pobierająca obiekt klasy <code>Color</code>, za pomocą którego ustawiany jest kolor pierwszego gracza
+     * @return Kolor pierwszego gracza
+     */
+    public static Color getRealColor2(){return secondColor;}
+    /**
+     * Funkcja pobierająca ilość czołgów do rozgrywki.
+     * @return Ilość czołgów
+     */
     public static int getNumOfTanks(){return chosenNumberOfTanks;}
 }
