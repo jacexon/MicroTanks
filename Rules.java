@@ -53,6 +53,11 @@ public class Rules extends Frame
         titleRules.setText("ZASADY GRY");
         titleRules.setFont(title);
         titleRules.setHorizontalAlignment(JTextField.CENTER);
+        rulesArea.setFont(new Font("Calibri", Font.BOLD,19));
+        rulesArea.setText("Celem gry jest zdobycie jak największej ilości punktów \n" + "zdobywanych podczas trafień w czołgi przeciwnika." +
+                "Do strzelania do czołgu pr\nzeciwnika można użyć kilku rodzajów broni\n " + "Im bliżej środka czołgu trafisz, tym więcej punktów" +
+                " dostaniesz za uderzenie!");
+        rulesArea.setEditable(false);
         rulesArea.setVisible(true);
         rulesFrame.add(rulesArea);
         rulesFrame.add(titleRules);
@@ -63,6 +68,8 @@ public class Rules extends Frame
         backButton.setBounds(width/10,height/12+height/9+height/12+height/2+height/24,width/5,height/12);
         backButton.setVisible(true);
         rulesFrame.add(backButton);
+
+        rulesFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
